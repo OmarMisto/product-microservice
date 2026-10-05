@@ -1,4 +1,10 @@
 package com.example.product.controller.excption;
 
-public class UpStreamException {
+import lombok.RequiredArgsConstructor;
+
+
+public class UpStreamException extends RuntimeException{
+  public UpStreamException(String message){
+      super(message);
+  }
 }

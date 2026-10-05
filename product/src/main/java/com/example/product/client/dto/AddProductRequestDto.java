@@ -1,4 +1,4 @@
-package com.example.product.model.dto;
+package com.example.product.client.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

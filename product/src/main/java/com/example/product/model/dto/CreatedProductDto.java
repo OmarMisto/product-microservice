@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 public class CreatedProductDto {
     private long productId;
     private String productName;
+    private String brand;
     private String description;
     private String productCategory;
     private BigDecimal price;

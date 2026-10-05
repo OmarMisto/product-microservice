@@ -22,6 +22,7 @@ public class Product {
     private String productName;
     @Lob
     private String description;
+
     private String productNo;
     private String brand;
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)

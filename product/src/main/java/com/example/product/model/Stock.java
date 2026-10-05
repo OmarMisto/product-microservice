@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long stockId;// primary key of the stock in the product id
+    private long stockId;// primary key of the stock in the product db
     @Column(nullable = false,unique = true)
     private long productStockId;//product id in the stock db
     @OneToMany(mappedBy = "stock",cascade = CascadeType.ALL)

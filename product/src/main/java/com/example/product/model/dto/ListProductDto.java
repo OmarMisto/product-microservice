@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 @ToString
-public class ListProductCrateriaDto {
+public class ListProductDto {
     private String city;
     private String country;
     private String productName;
