@@ -1,8 +1,5 @@
 package com.example.product.service.implementaion;
 
-import com.example.product.client.StockClient;
-import com.example.product.client.StockClientAdapter;
-import com.example.product.client.StockPort;
 import com.example.product.client.dto.AddProductRequestDto;
 import com.example.product.client.dto.AddProductStockResponseDto;
 import com.example.product.model.Product;
@@ -17,12 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
     @Mock

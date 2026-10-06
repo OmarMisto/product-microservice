@@ -1,32 +1,44 @@
 package com.example.product.service.implementaion;
 
 import com.example.product.client.StockClient;
-import com.example.product.client.StockPort;
+import com.example.product.client.StoreClient;
 import com.example.product.client.dto.AddProductRequestDto;
+import com.example.product.client.dto.GetStoreRequestDto;
+import com.example.product.client.dto.GetStoreResponseDto;
+import com.example.product.controller.excption.UpStreamException;
 import com.example.product.model.Product;
 import com.example.product.model.ProductCategory;
 import com.example.product.model.Stock;
 import com.example.product.client.dto.AddProductStockResponseDto;
 import com.example.product.model.dto.CreateProductDto;
 import com.example.product.model.dto.CreatedProductDto;
+import com.example.product.model.dto.ListProductCriteriaDto;
+import com.example.product.model.dto.ListProductDto;
+import com.example.product.repository.ListProductRepository;
 import com.example.product.repository.ProductCategoryRepository;
 import com.example.product.repository.ProductRepository;
 import com.example.product.service.IProductService;
 import com.example.product.service.exception.CategoryNotFoundException;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
-    private final StockPort stockPort;
+    private final StockClient stockClient;
+    private final ListProductRepository listProductRepository;
+    private final StoreClient storeClient;
     @Override
-    @Transactional
-    public CreatedProductDto createProductService(CreateProductDto createProductDto) {
-         AddProductStockResponseDto addProductStockResponseDto= stockPort.addProductToStock(AddProductRequestDto
+    @Transactional(rollbackFor = FeignException.FeignClientException.class)
+    public CreatedProductDto createProductService(CreateProductDto createProductDto)  {
+         AddProductStockResponseDto addProductStockResponseDto= stockClient.addProductToStock(AddProductRequestDto
                  .builder()
                  .stockId(createProductDto.getStockId())
                  .productNo(createProductDto.getProductNo())
@@ -59,5 +71,31 @@ public class ProductService implements IProductService {
                 .description(createProductDto.getDescription())
                 .productCategory(savedProduct.getProductCategory().getCategoryName())
                 .build();
+    }
+    @Override
+    @Transactional(readOnly = true,rollbackFor = FeignException.class)
+    public List<ListProductDto> listProducts(ListProductCriteriaDto listProductCriteriaDto) {
+        List<Long> storeIds =storeClient.getStoreByCityAndCategory(GetStoreRequestDto
+                .builder()
+                .city(listProductCriteriaDto.getCity())
+                .category(listProductCriteriaDto.getCategory())
+                .page(listProductCriteriaDto.getPage())
+                .build()).stream().map(GetStoreResponseDto::getStoreId).toList();
+        PageRequest pageable = PageRequest.of(listProductCriteriaDto.getPage(),50);
+        return listProductRepository
+                .findProductsByCriteria(listProductCriteriaDto,storeIds, pageable.getPageSize())
+                .stream().map(product -> ListProductDto.builder()
+                        .productId(product.getProductId())
+                        .storeId(product.getStock().getStoreId())
+                        .productName(product.getProductName())
+                        .description(product.getDescription())
+                        .brand(product.getBrand())
+                        .category(product.getProductCategory().getCategoryName())
+                        .price(product.getPrice())
+                        .discountPercentage(product.getDiscountPercentage())
+                        .isAvailableInYourRegin(true)
+                        .build()
+                )
+                .toList();
     }
 }
