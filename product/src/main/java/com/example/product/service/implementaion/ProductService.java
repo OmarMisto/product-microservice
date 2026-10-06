@@ -5,26 +5,25 @@ import com.example.product.client.StoreClient;
 import com.example.product.client.dto.AddProductRequestDto;
 import com.example.product.client.dto.GetStoreRequestDto;
 import com.example.product.client.dto.GetStoreResponseDto;
-import com.example.product.controller.excption.UpStreamException;
 import com.example.product.model.Product;
 import com.example.product.model.ProductCategory;
 import com.example.product.model.Stock;
 import com.example.product.client.dto.AddProductStockResponseDto;
-import com.example.product.model.dto.CreateProductDto;
-import com.example.product.model.dto.CreatedProductDto;
-import com.example.product.model.dto.ListProductCriteriaDto;
-import com.example.product.model.dto.ListProductDto;
+import com.example.product.model.dto.*;
 import com.example.product.repository.ListProductRepository;
 import com.example.product.repository.ProductCategoryRepository;
 import com.example.product.repository.ProductRepository;
 import com.example.product.service.IProductService;
 import com.example.product.service.exception.CategoryNotFoundException;
+import com.example.product.service.exception.TooManyImagesInTheListException;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,6 +34,7 @@ public class ProductService implements IProductService {
     private final StockClient stockClient;
     private final ListProductRepository listProductRepository;
     private final StoreClient storeClient;
+    private final ImageRepository imageRepository;
     @Override
     @Transactional(rollbackFor = FeignException.FeignClientException.class)
     public CreatedProductDto createProductService(CreateProductDto createProductDto)  {
@@ -72,6 +72,15 @@ public class ProductService implements IProductService {
                 .productCategory(savedProduct.getProductCategory().getCategoryName())
                 .build();
     }
+
+    @Override
+    public List<? extends PostedImageDto> postProductImagesService(List<MultipartFile> images, long productId) {
+        if (images.size()>10){
+            throw new TooManyImagesInTheListException("the images list contain more the 10 images");
+        }
+        return imageRepository.saveAllImages(images,productId);
+    }
+
     @Override
     @Transactional(readOnly = true,rollbackFor = FeignException.class)
     public List<ListProductDto> listProducts(ListProductCriteriaDto listProductCriteriaDto) {
@@ -98,4 +107,5 @@ public class ProductService implements IProductService {
                 )
                 .toList();
     }
+
 }

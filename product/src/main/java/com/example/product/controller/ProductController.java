@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,6 +21,11 @@ public class ProductController {
     @PostMapping("/create/product")
     public ResponseEntity<CreatedProductDto> createProductController(@RequestBody CreateProductDto createProductDto){
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(iProductService.createProductService(createProductDto));
+    }
+    @PostMapping("/post/product/images")
+    public ResponseEntity<?>postProductImagesController(@RequestPart List<MultipartFile> images,@RequestParam(name = "productId")long productId){
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(iProductService.postProductImagesService(images,productId));
     }
 
     @GetMapping("/list/products")
