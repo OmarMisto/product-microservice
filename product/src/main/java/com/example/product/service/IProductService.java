@@ -9,6 +9,6 @@ public interface IProductService {
     public CreatedProductDto createProductService(CreateProductDto createProductDto);
     public List<? extends PostedImageDto> postProductImagesService(List<MultipartFile> images,long productId);
     public List<ListProductDto> listProducts(ListProductCriteriaDto listProductCriteriaDto);
-
-
+    public ProductDto getProductById(long productId);
+    public List<? extends PostedImageDto> listProductImages(long productId);
 }

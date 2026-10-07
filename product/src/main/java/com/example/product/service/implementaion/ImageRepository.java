@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface ImageRepository {
     public List <? extends PostedImageDto > saveAllImages(List<MultipartFile> images, long productId);
+    public List<? extends PostedImageDto> findAllImagesById(long productId);
 }

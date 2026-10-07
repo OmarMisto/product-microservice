@@ -1,9 +1,6 @@
 package com.example.product.controller;
 
-import com.example.product.model.dto.CreateProductDto;
-import com.example.product.model.dto.CreatedProductDto;
-import com.example.product.model.dto.ListProductCriteriaDto;
-import com.example.product.model.dto.ListProductDto;
+import com.example.product.model.dto.*;
 import com.example.product.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,10 +24,17 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(iProductService.postProductImagesService(images,productId));
     }
-
     @GetMapping("/list/products")
     public ResponseEntity<List<ListProductDto>> listProducts(@RequestBody ListProductCriteriaDto listProductCriteriaDto){
         return ResponseEntity.ok(iProductService.listProducts(listProductCriteriaDto));
+    }
+    @GetMapping("list/{productId}/images/")
+    public ResponseEntity<List<? extends PostedImageDto>>listProductImages(@PathVariable(name = "productId") long productId){
+        return ResponseEntity.ok().body(iProductService.listProductImages(productId));
+    }
+    @GetMapping("get/{productId}")
+    public ResponseEntity<ProductDto> getProductByIdController(@PathVariable(name = "productId") long productId){
+        return ResponseEntity.ok().body(iProductService.getProductById(productId));
     }
 
 }

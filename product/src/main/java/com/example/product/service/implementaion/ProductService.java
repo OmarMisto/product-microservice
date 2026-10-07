@@ -15,6 +15,7 @@ import com.example.product.repository.ProductCategoryRepository;
 import com.example.product.repository.ProductRepository;
 import com.example.product.service.IProductService;
 import com.example.product.service.exception.CategoryNotFoundException;
+import com.example.product.service.exception.ProductNotFoundException;
 import com.example.product.service.exception.TooManyImagesInTheListException;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -107,5 +108,31 @@ public class ProductService implements IProductService {
                 )
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductDto getProductById(long productId) {
+        Product product =productRepository.findById(productId).orElseThrow(()->new ProductNotFoundException("product not found"));
+        return ProductDto.builder()
+                .productId(product.getProductId())
+                .storeId(product.getStock().getStoreId())
+                .productName(product.getProductName())
+                .description(product.getDescription())
+                .productNo(product.getProductNo())
+                .brand(product.getBrand())
+                .category(product.getProductCategory().getCategoryName())
+                .price(product.getPrice())
+                .discountPercentage(product.getDiscountPercentage())
+                .build();
+    }
+
+    @Override
+    public List<? extends PostedImageDto> listProductImages(long productId) {
+            if (!productRepository.existsById(productId)){
+                throw  new ProductNotFoundException("product not found");
+            }
+            return imageRepository.findAllImagesById(productId);
+    }
+
 
 }

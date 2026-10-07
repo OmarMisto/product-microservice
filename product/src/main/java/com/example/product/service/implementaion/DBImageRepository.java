@@ -8,6 +8,7 @@ import com.example.product.repository.ProductRepository;
 import com.example.product.service.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.List;
 public class DBImageRepository implements ImageRepository {
     private final ProductRepository productRepository;
     @Override
+    @Transactional(rollbackFor = RuntimeException.class)
     public List<? extends PostedImageDto> saveAllImages(List<MultipartFile> images, long productId) {
         Product product = productRepository.findById(productId).orElseThrow(()->new ProductNotFoundException("Product not found"));
         images.forEach(multipartFile ->{
@@ -34,6 +36,17 @@ public class DBImageRepository implements ImageRepository {
         return productRepository.save(product).getProductImages()
                 .stream()
                 .map(productImage -> new DBPostedImageDto(productImage.getImage(),productImage.getProductImageId(),productImage.getContentType(),productImage.getName(),productImage.getSize()))
+                .toList();
+    }
+
+    @Override
+    public List<? extends PostedImageDto> findAllImagesById(long productId) {
+        Product product= productRepository.findById(productId).orElse(null);
+        if (product ==null){
+            return List.of(new DBPostedImageDto());
+        }
+        return product.getProductImages().stream().map(productImage ->
+                new DBPostedImageDto(productImage.getImage(),productImage.getProductImageId(),productImage.getContentType(),productImage.getName(),productImage.getSize()))
                 .toList();
     }
 }
